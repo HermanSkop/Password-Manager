@@ -14,7 +14,7 @@ class Console {
 public:
     Console(){
         std::cout << "Hello, would you like to see current directory or input path by yourself?" << std::endl;
-        changeDirectory(getData());
+        changeDirectory();
         cycle();
     }
     static std::string getData()/**
@@ -25,13 +25,22 @@ public:
         std::cin>>x;
         return x;
     }
-    static void cycle() {
-        std::cout << "'help' to see possible actions:" << std::endl;
-        getData();
-        cycle();
+    static void cycle()/**
+ * Recursively asks for an action and gets it
+ * */{
+        while (true) {
+            std::cout << "'help' to see possible actions:";
+            std::string input = getData();
+            if (input == "help") showHelp();
+            else if (input == "cd") changeDirectory();
+        }
     }
-    void changeDirectory(std::string input){
-        new FilesManager(input);
+    static void changeDirectory(){
+        new FilesManager();
+    }
+    static void showHelp(){
+        std::cout << "help - shows this message" << std::endl;
+        std::cout << "cd - switches within files" << std::endl;
     }
 };
 
