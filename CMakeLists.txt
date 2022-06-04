@@ -3,4 +3,4 @@ project(untitled)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(untitled main.cpp Console.h FilesManager.h NoMatchesException.h PasswordManager.h)
+add_executable(untitled main.cpp Console.h Console.cpp NoMatchesException.h FileManager.cpp FileManager.h PasswordManager.cpp PasswordManager.h)
