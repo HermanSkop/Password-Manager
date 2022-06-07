@@ -4,7 +4,7 @@
 
 #include "FileManager.h"
 
-std::string FileManager::currentDirectory = "badpath";
+std::string FileManager::currentDirectory = "../Passwords\\\\pas1.txt";
 
 std::string FileManager::getMainPassword() {
         std::ifstream ifs;
