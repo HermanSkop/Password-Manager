@@ -57,7 +57,7 @@ public:
 
     static void showHelpForRules();
 
-    static std::string buildAddsPassword();
+    static void buildAddsPassword();
 
     static bool encryptb(const std::string &input);
 

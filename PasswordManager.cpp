@@ -34,20 +34,7 @@ bool PasswordManager::encryptln(const std::string &input) {
         for (char const &c: input) {
             write((int) c);
         }
-        write(' ');
         write("\n");
-        return true;
-    }
-    catch (std::exception &e){
-        return false;
-    }
-}
-bool PasswordManager::encryptb(const std::string &input) {
-    try {
-        write("\b");
-        for (char const &c: input) {
-            write((int) c);
-        }
         return true;
     }
     catch (std::exception &e){
@@ -60,37 +47,7 @@ bool PasswordManager::encryptMarkln(const std::string &input, char mark) {
         for (char const &c: input) {
             write((int) c);
         }
-        write(' ');
         write("\n");
-        return true;
-    }
-    catch (std::exception &e){
-        return false;
-    }
-}
-bool PasswordManager::encryptMarklnb(const std::string &input, char mark) {
-    try {
-        write("\b");
-        write(mark);
-        for (char const &c: input) {
-            write((int) c);
-        }
-        write(' ');
-        write("\n");
-        return true;
-    }
-    catch (std::exception &e){
-        return false;
-    }
-}
-bool PasswordManager::encryptMarkb(const std::string &input, char mark) {
-    try {
-        write("\b");
-        write(mark);
-        for (char const &c: input) {
-            write((int) c);
-        }
-        write(" ");
         return true;
     }
     catch (std::exception &e){
@@ -337,7 +294,6 @@ void PasswordManager::addPassword(const std::string &currDirectory) {
         if(input=="yes") {
             encrypt(askName());
             encrypt(askPassword());
-            encryptln(askCategory());
             buildAddsPassword();
             done = true;
         }
@@ -358,42 +314,36 @@ void PasswordManager::addPassword(const std::string &currDirectory) {
                             else if (rule == "u") {
                                 encrypt(askName());
                                 encrypt(generateUpperPassword(length));
-                                encryptln(askCategory());
                                 buildAddsPassword();
                                 break;
                             }
                             else if (rule == "l") {
                                 encrypt(askName());
-                                generateLowerPassword(length);
-                                encryptln(askCategory());
+                                encrypt(generateLowerPassword(length));
                                 buildAddsPassword();
                                 break;
                             }
                             else if (rule == "uns") {
                                 encrypt(askName());
-                                generateUpperNoSpecialPassword(length);
-                                encryptln(askCategory());
+                                encrypt(generateUpperNoSpecialPassword(length));
                                 buildAddsPassword();
                                 break;
                             }
                             else if (rule == "lns") {
                                 encrypt(askName());
-                                generateLowerNoSpecialPassword(length);
-                                encryptln(askCategory());
+                                encrypt(generateLowerNoSpecialPassword(length));
                                 buildAddsPassword();
                                 break;
                             }
                             else if (rule == "ns") {
                                 encrypt(askName());
-                                generateNoSpecialPassword(length);
-                                encryptln(askCategory());
+                                encrypt(generateNoSpecialPassword(length));
                                 buildAddsPassword();
                                 break;
                             }
                             else if (rule == "no") {
                                 encrypt(askName());
-                                generatePassword(length);
-                                encryptln(askCategory());
+                                encrypt(generatePassword(length));
                                 buildAddsPassword();
                                 break;
                             }
@@ -452,7 +402,6 @@ void PasswordManager::showHelpForRules() {
 std::string PasswordManager::askName(){
     std::cout << "Input name for the password:";
     std::string p;
-    std::cin.ignore();
     std::getline(std::cin, p);
     return p;
 }
@@ -528,7 +477,7 @@ std::string PasswordManager::generatePassword(int length) {
     password.resize(length);
     srand(time(NULL)); //reset rand()
     for(length; length>=0; length--){
-        password[length] = 33 + rand()%97;
+        password[length] = 33 + rand()%93;
     }
     std::cout << "Password: " << password << " is generated" << std::endl;
     return password;
@@ -539,7 +488,7 @@ std::string PasswordManager::generateUpperPassword(int length) {
     srand(time(NULL)); //reset rand()
     int temp = 100;
     for(length; length>=0; length--){
-        while (temp>=97&&temp<=122)temp = 33 + rand()%97;
+        while (temp>=97&&temp<=122)temp = 33 + rand()%93;
         password[length] = temp;
         temp = 100;
     }
@@ -552,7 +501,7 @@ std::string PasswordManager::generateUpperNoSpecialPassword(int length) {
     srand(time(NULL)); //reset rand()
     int temp = 100;
     for(length; length>=0; length--){
-        while (temp>=91||temp>=58&&temp<=64||temp<=47)temp = 33 + rand()%97;
+        while (temp>=91||temp>=58&&temp<=64||temp<=47)temp = 33 + rand()%93;
         password[length] = temp;
         temp = 100;
     }
@@ -565,7 +514,7 @@ std::string PasswordManager::generateLowerPassword(int length) {
     srand(time(NULL)); //reset rand()
     int temp = 70;
     for(length; length>=0; length--){
-        while (temp>=65&&temp<=90)temp = 33 + rand()%97;
+        while (temp>=65&&temp<=90)temp = 33 + rand()%93;
         password[length] = temp;
         temp = 70;
     }
@@ -578,7 +527,7 @@ std::string PasswordManager::generateLowerNoSpecialPassword(int length) {
     srand(time(NULL)); //reset rand()
     int temp = 70;
     for(length; length>=0; length--){
-        while (temp>=58&&temp<=97||temp<=47||temp>=123)temp = 33 + rand()%97;
+        while (temp>=58&&temp<=97||temp<=47||temp>=123)temp = 33 + rand()%93;
         password[length] = temp;
         temp = 70;
     }
@@ -591,7 +540,7 @@ std::string PasswordManager::generateNoSpecialPassword(int length) {
     srand(time(NULL)); //reset rand()
     int temp = 70;
     for(length; length>=0; length--){
-        while (temp>=58&&temp<=64||temp>=91&&temp<=96||temp<=47||temp>=123)temp = 33 + rand()%97;
+        while (temp>=58&&temp<=64||temp>=91&&temp<=96||temp<=47||temp>=123)temp = 33 + rand()%93;
         password[length] = temp;
         temp = 58;
     }
@@ -600,26 +549,32 @@ std::string PasswordManager::generateNoSpecialPassword(int length) {
 }
 
 
-std::string PasswordManager::buildAddsPassword(){
+void PasswordManager::buildAddsPassword(){
     std::string askAdds;
+    std::string category = askCategory();
+
     while(true){
         std::cout << "Would you like to add URL or Login to your password?(help):";
         std::getline(std::cin, askAdds);
         if(askAdds=="help")showHelpForAddSides();
         else if(askAdds == "no"){
+            encryptln(category);
             break;
         }
         else if(askAdds == "url"){
+            encrypt(category);
             std::string t = askURL();
             encryptMarkln(t, 'U');
             break;
         }
         else if(askAdds == "log"){
+            encrypt(category);
             std::string t = askLogin();
             encryptMarkln(t, 'L');
             break;
         }
         else if(askAdds == "urlog"){
+            encrypt(category);
             std::string t = askURL();
             encryptMark(t, 'U');
             t = askLogin();
