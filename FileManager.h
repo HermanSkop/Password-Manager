@@ -29,7 +29,7 @@ public:
     static std::string currentDirectory;
     FileManager(){
         FMCycle();
-    };;
+    };
 
     static void FMCycle()/**
  * Asks user for choosing the correct file path.

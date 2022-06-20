@@ -15,7 +15,6 @@
 class PasswordManager {
 private:
 
-    static void encryptPack(PasswordPack pack);
 
     static bool encryptln(const std::string &input);
     static bool encrypt(const std::string& input);
@@ -26,6 +25,7 @@ private:
     static void write(const int& input);
 
 public:
+    static void encryptPack(PasswordPack pack);
     static void encryptAll(PasswordPack *arr, size_t size);
 
 
@@ -74,6 +74,22 @@ public:
 
     static int countPasswords();
 
+    static PasswordPack editName(PasswordPack pack, std::string name);
+
+    static PasswordPack getByName(const std::string& name);
+
+    static bool existsName(const std::string& name);
+
+    static PasswordPack editPassword(PasswordPack pack, std::string password);
+
+    static PasswordPack editCategory(PasswordPack pack, std::string category);
+
+    static PasswordPack editLogin(PasswordPack pack, std::string login);
+
+    static PasswordPack editUrl(PasswordPack pack, std::string url);
+
+    static void removePassword(const std::string& basicString);
+    static PasswordPack editPack(PasswordPack tempPack);
 };
 
 

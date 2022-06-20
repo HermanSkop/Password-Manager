@@ -8,11 +8,11 @@
 
 void PasswordManager::encryptAll(PasswordPack* arr, size_t size) {
     try{
-        for (int a = 0; a < size; a++) {
-            encryptPack(arr[a]);
-        }
+        for (int a = 0; a < size; a++) encryptPack(arr[a]);
     }
-    catch(std::exception &e) {}
+    catch(std::exception &e) {
+        std::cout << e.what();
+    }
 }
 void PasswordManager::encryptPack(PasswordPack pack) {
     encrypt(pack.getName());
@@ -447,7 +447,11 @@ std::string PasswordManager::askName(){
     std::cout << "Input name for the password:";
     std::string p;
     std::getline(std::cin, p);
-    return p;
+    if(!existsName(p))return p;
+    else {
+        std::cout << "Such name is already taken";
+        return askName();
+    }
 }
 std::string PasswordManager::askPassword(){
     std::string p = " ";
@@ -661,17 +665,9 @@ PasswordPack* PasswordManager::sortByName(PasswordPack* arr) {
     }
     return arr;
 }
-
 PasswordPack* PasswordManager::sortByCategory(PasswordPack* arr){
     try {
-        int size = 0;
-        try {
-            while (true) {
-                arr[size].toString();
-                size++;
-            }
-        }
-        catch (std::exception &e) {}
+        int size = countPasswords();
 
         for (int i = 0; i < size; i++) {
             for (int a = 0; a < size - 1; a++) {
@@ -696,7 +692,77 @@ int PasswordManager::countPasswords() {
 
     while (std::getline(fs, s)) count++;
 
-    std::cout << "count " << count << std::endl;
-
     return count;
+}
+
+PasswordPack PasswordManager::editName(PasswordPack pack, std::string name){
+    pack.setName(name);
+    return pack;
+}
+PasswordPack PasswordManager::editPassword(PasswordPack pack, std::string password){
+    pack.setPassword(password);
+    return pack;
+}
+PasswordPack PasswordManager::editCategory(PasswordPack pack, std::string category){
+    pack.setCategory(category);
+    return pack;
+}
+PasswordPack PasswordManager::editLogin(PasswordPack pack, std::string login){
+    pack.setLogin(login);
+    return pack;
+}
+PasswordPack PasswordManager::editUrl(PasswordPack pack, std::string url){
+    pack.setUrl(url);
+    return pack;
+}
+
+bool PasswordManager::existsName(const std::string& name) {
+    int size = countPasswords();
+    PasswordPack* arr = decrypt();
+
+    for (int i = 0; i < size; i++) {
+        if (arr[i].getName() == name) {
+            return true;
+        }
+    }
+    return false;
+}
+
+PasswordPack PasswordManager::getByName(const std::string& name) {
+    int size = countPasswords();
+    PasswordPack* arr = decrypt();
+
+    for (int i = 0; i < size; i++) {
+        if (arr[i].getName() == name) {
+            return arr[i];
+        }
+    }
+}
+
+void PasswordManager::removePassword(const std::string& name) {
+    int size = countPasswords();
+    PasswordPack* allPasswords = decrypt();
+    PasswordPack leftPasswords[size-1];
+
+    int t = 0;
+
+    for (int i = 0; i < size; i++) {
+        if (allPasswords[i].getName() != name) {
+            leftPasswords[t] = allPasswords[i];
+            t++;
+        }
+    }
+
+    FileManager::clearCurrFile();
+
+    encryptAll(leftPasswords, size-1);
+}
+
+PasswordPack PasswordManager::editPack(PasswordPack tempPack) {
+    tempPack = PasswordManager::editName(tempPack, PasswordManager::askName());
+    tempPack = PasswordManager::editPassword(tempPack, PasswordManager::askPassword());
+    tempPack = PasswordManager::editCategory(tempPack, PasswordManager::askCategory());
+    if(!tempPack.getUrl().empty()) tempPack = PasswordManager::editUrl(tempPack, PasswordManager::askURL());
+    if(!tempPack.getLogin().empty()) tempPack = PasswordManager::editLogin(tempPack, PasswordManager::askLogin());
+    return tempPack;
 }

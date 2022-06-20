@@ -32,6 +32,12 @@ public:
     std::string getCategory();
     std::string getLogin();
     std::string getUrl();
+
+    void setName(std::string n);
+    void setPassword(std::string p);
+    void setCategory(std::string c);
+    void setLogin(std::string l);
+    void setUrl(std::string u);
 };
 
 #endif //MAIN_CPP_PASSWORDPACK_H
