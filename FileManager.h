@@ -50,7 +50,10 @@ public:
  **/;
 
 
-    static void clearCurrFile();
+    static void clearCurrFile()/**
+ * Removes everything from current file
+ */
+;
 };
 
 

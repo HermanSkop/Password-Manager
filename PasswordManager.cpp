@@ -85,6 +85,218 @@ bool PasswordManager::encryptMarkln(const std::string &input, char mark) {
 }
 
 PasswordPack PasswordManager::decrypt(int passwordNumber) {
+    try {
+        std::string tempLine = read(passwordNumber);
+        std::string name;
+        std::string category;
+        std::string password;
+        std::string url;
+        std::string login;
+
+        int pos = 0;
+        int tempPos = 0;
+        bool nextUrl = false;
+        bool nextLogin = false;
+
+        for (tempPos; pos <= tempLine.length(); tempPos++) {
+            if (tempLine[pos] != ' ') {
+                int num = tempLine[pos] - '0';
+                if (num >= 3)pos += 2;
+                else pos += 3;
+            } else break;
+        }
+        name.resize(tempPos);
+        pos++;
+        for (tempPos = 0; pos <= tempLine.length(); tempPos++) {
+            if (tempLine[pos] != ' ') {
+                int num = tempLine[pos] - '0';
+                if (num >= 3)pos += 2;
+                else pos += 3;
+            } else break;
+        }
+        password.resize(tempPos);
+        pos++;
+        for (tempPos = 0; pos <= tempLine.length(); tempPos++) {
+            if (tempLine[pos] != '\n' && tempLine[pos] != 'U' && tempLine[pos] != 'L' && tempLine[pos] != ' ') {
+                int num = tempLine[pos] - '0';
+                if (num >= 3)pos += 2;
+                else pos += 3;
+            } else if (tempLine[pos] == ' ') {
+                tempPos--;
+                pos++;
+            } else if (tempLine[pos] == 'U') {
+                nextUrl = true;
+                pos++;
+                break;
+            } else if (tempLine[pos] == 'L') {
+                nextLogin = true;
+                pos++;
+                break;
+            } else break;
+        }
+        category.resize(tempPos);
+
+        if (nextUrl) {
+            for (tempPos = 0; pos <= tempLine.length(); tempPos++) {
+                if (tempLine[pos] != '\n' && tempLine[pos] != ' ') {
+                    int num = tempLine[pos] - '0';
+                    if (num >= 3)pos += 2;
+                    else pos += 3;
+                } else if (tempLine[pos] == ' ') {
+                    pos += 2;
+                    nextLogin = true;
+                    break;
+                } else break;
+            }
+            url.resize(tempPos);
+        }
+        if (nextLogin) {
+            pos++;
+            for (tempPos = 0; pos <= tempLine.length(); tempPos++) {
+                if (tempLine[pos] != '\n') {
+                    int num = tempLine[pos] - '0';
+                    if (num >= 3)pos += 2;
+                    else pos += 3;
+                } else break;
+            }
+            login.resize(tempPos);
+        }
+
+        pos = 0;
+        tempPos = 0;
+        for (pos; pos <= tempLine.length();) {
+            if (tempLine[pos] != ' ') {
+                int num = tempLine[pos] - '0';
+                if (num >= 3) {
+                    num *= 10;
+                    num += tempLine[pos + 1] - '0';
+                    name[tempPos] = (char) num;
+                    pos += 2;
+                    tempPos++;
+                } else {
+                    num *= 10;
+                    num += tempLine[pos + 1] - '0';
+                    num *= 10;
+                    num += tempLine[pos + 2] - '0';
+                    name[tempPos] = (char) num;
+                    pos += 3;
+                    tempPos++;
+                }
+            } else break;
+        }
+        pos++;
+        tempPos = 0;
+        for (pos; pos <= tempLine.length();) {
+            if (tempLine[pos] != ' ') {
+                int num = tempLine[pos] - '0';
+                if (num >= 3) {
+                    num *= 10;
+                    num += tempLine[pos + 1] - '0';
+                    password[tempPos] = (char) num;
+                    pos += 2;
+                    tempPos++;
+                } else {
+                    num *= 10;
+                    num += tempLine[pos + 1] - '0';
+                    num *= 10;
+                    num += tempLine[pos + 2] - '0';
+                    password[tempPos] = (char) num;
+                    pos += 3;
+                    tempPos++;
+                }
+            } else break;
+        }
+        pos++;
+        tempPos = 0;
+        for (pos; pos <= tempLine.length();) {
+            if (tempLine[pos] != '\0' && tempLine[pos] != 'U' && tempLine[pos] != 'L' && tempLine[pos] != ' ') {
+                int num = tempLine[pos] - '0';
+                if (num >= 3) {
+                    num *= 10;
+                    num += tempLine[pos + 1] - '0';
+                    category[tempPos] = (char) num;
+                    pos += 2;
+                    tempPos++;
+                } else {
+                    num *= 10;
+                    num += tempLine[pos + 1] - '0';
+                    num *= 10;
+                    num += tempLine[pos + 2] - '0';
+                    category[tempPos] = (char) num;
+                    pos += 3;
+                    tempPos++;
+                }
+            } else if (tempLine[pos] == ' ') {
+                pos++;
+            } else if (tempLine[pos] == 'U') {
+                pos++;
+                break;
+            } else if (tempLine[pos] == 'L') {
+                pos++;
+                break;
+            } else break;
+        }
+
+        if (nextUrl) {
+            tempPos = 0;
+            for (pos; pos <= tempLine.length();) {
+                if (tempLine[pos] != '\0' && tempLine[pos] != ' ') {
+                    int num = tempLine[pos] - '0';
+                    if (num >= 3) {
+                        num *= 10;
+                        num += tempLine[pos + 1] - '0';
+                        url[tempPos] = (char) num;
+                        pos += 2;
+                        tempPos++;
+                    } else {
+                        num *= 10;
+                        num += tempLine[pos + 1] - '0';
+                        num *= 10;
+                        num += tempLine[pos + 2] - '0';
+                        url[tempPos] = (char) num;
+                        pos += 3;
+                        tempPos++;
+                    }
+                } else if (tempLine[pos] == ' ') {
+                    nextLogin = true;
+                    pos += 2;
+                    break;
+                } else break;
+            }
+        }
+        if (nextLogin) {
+            tempPos = 0;
+            for (pos; pos <= tempLine.length();) {
+                if (tempLine[pos] != '\0') {
+                    int num = tempLine[pos] - '0';
+                    if (num >= 3) {
+                        num *= 10;
+                        num += tempLine[pos + 1] - '0';
+                        login[tempPos] = (char) num;
+                        pos += 2;
+                        tempPos++;
+                    } else {
+                        num *= 10;
+                        num += tempLine[pos + 1] - '0';
+                        num *= 10;
+                        num += tempLine[pos + 2] - '0';
+                        login[tempPos] = (char) num;
+                        pos += 3;
+                        tempPos++;
+                    }
+                } else break;
+            }
+        }
+
+        PasswordPack out(name, password, category, url, login);
+
+        return out;
+    }
+    catch (std::exception &e){
+        std::cout << "Application cannot decrypt current file!" << std::endl;
+    }
+}
+PasswordPack PasswordManager::falseDecrypt(int passwordNumber) {
     std::string tempLine = read(passwordNumber);
     std::string name;
     std::string category;
@@ -178,7 +390,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
             if (num >= 3) {
                 num*=10;
                 num+= tempLine[pos + 1] - '0';
-                name[tempPos] = (char)num;
+                name[tempPos] = (char)(num+5);
                 pos+=2;
                 tempPos++;
             }
@@ -187,7 +399,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
                 num+= tempLine[pos + 1] - '0';
                 num*=10;
                 num+= tempLine[pos + 2] - '0';
-                name[tempPos] = (char)num;
+                name[tempPos] = (char)(num+5);
                 pos+=3;
                 tempPos++;
             }
@@ -202,7 +414,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
             if (num >= 3) {
                 num*=10;
                 num+= tempLine[pos + 1] - '0';
-                password[tempPos] = (char)num;
+                password[tempPos] = (char)(num+5);
                 pos+=2;
                 tempPos++;
             }
@@ -211,7 +423,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
                 num+= tempLine[pos + 1] - '0';
                 num*=10;
                 num+= tempLine[pos + 2] - '0';
-                password[tempPos] = (char)num;
+                password[tempPos] = (char)(num+5);
                 pos+=3;
                 tempPos++;
             }
@@ -226,7 +438,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
             if (num >= 3) {
                 num*=10;
                 num+= tempLine[pos + 1] - '0';
-                category[tempPos] = (char)num;
+                category[tempPos] = (char)(num+5);
                 pos+=2;
                 tempPos++;
             }
@@ -235,7 +447,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
                 num+= tempLine[pos + 1] - '0';
                 num*=10;
                 num+= tempLine[pos + 2] - '0';
-                category[tempPos] = (char)num;
+                category[tempPos] = (char)(num+5);
                 pos+=3;
                 tempPos++;
             }
@@ -262,7 +474,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
                 if (num >= 3) {
                     num *= 10;
                     num += tempLine[pos + 1] - '0';
-                    url[tempPos] = (char) num;
+                    url[tempPos] = (char) (num+5);
                     pos += 2;
                     tempPos++;
                 } else {
@@ -270,7 +482,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
                     num += tempLine[pos + 1] - '0';
                     num *= 10;
                     num += tempLine[pos + 2] - '0';
-                    url[tempPos] = (char) num;
+                    url[tempPos] = (char) (num+5);
                     pos += 3;
                     tempPos++;
                 }
@@ -291,7 +503,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
                 if (num >= 3) {
                     num *= 10;
                     num += tempLine[pos + 1] - '0';
-                    login[tempPos] = (char) num;
+                    login[tempPos] = (char) (num+5);
                     pos += 2;
                     tempPos++;
                 } else {
@@ -299,7 +511,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
                     num += tempLine[pos + 1] - '0';
                     num *= 10;
                     num += tempLine[pos + 2] - '0';
-                    login[tempPos] = (char) num;
+                    login[tempPos] = (char) (num+5);
                     pos += 3;
                     tempPos++;
                 }
@@ -312,6 +524,7 @@ PasswordPack PasswordManager::decrypt(int passwordNumber) {
 
     return out;
 }
+
 PasswordPack* PasswordManager::decrypt() {
     try {
         int count = countPasswords();
@@ -319,6 +532,21 @@ PasswordPack* PasswordManager::decrypt() {
         PasswordPack *arr = new PasswordPack[count];
         for (int i = 1; i <= count; i++) {
             arr[i - 1] = decrypt(i);
+        }
+        return arr;
+    }
+    catch(std::exception &e){
+        std::cout << "File is empty!" << std::endl;
+        return nullptr;
+    }
+}
+PasswordPack* PasswordManager::falseDecrypt() {
+    try {
+        int count = countPasswords();
+
+        PasswordPack *arr = new PasswordPack[count];
+        for (int i = 1; i <= count; i++) {
+            arr[i - 1] = PasswordManager::falseDecrypt(i);
         }
         return arr;
     }
@@ -523,7 +751,7 @@ std::string PasswordManager::read(int line) {
 std::string PasswordManager::generatePassword(int length) {
     std::string password;
     password.resize(length);
-    srand(time(NULL)); //reset rand()
+    srand(time(nullptr)); //reset rand()
     for(length; length>=0; length--){
         password[length] = 33 + rand()%93;
     }
@@ -642,7 +870,7 @@ void PasswordManager::showPasswords(PasswordPack* arr) {
         }
     }
     catch (std::exception &e){
-        std::cout << "Number of passwords in file: " << i << std::endl;
+        std::cout << "Number of passwords in file:" << i << std::endl;
     }
 }
 

@@ -5,7 +5,7 @@
 #include "FileManager.h"
 bool FileManager::owner = false;
 
-std::string FileManager::currentDirectory = "../Passwords\\\\pas1.txt";
+std::string FileManager::currentDirectory = "noway";
 
 std::string FileManager::getMainPassword() {
         std::ifstream ifs;
@@ -54,8 +54,8 @@ void FileManager::FMCycle() {
         if(std::filesystem::exists(input)){
             currentDirectory = input;
             std::cout<< "Current directory is " << input << std::endl;
-            if(accessCheck()) std::cout << "true"<<std::endl;
-            else std::cout << "false"<<std::endl;
+            if(accessCheck()) owner = true;
+            else owner = false;
             done= true;
         }
         else if(input=="sd")showDirectory();
@@ -70,7 +70,6 @@ bool FileManager::accessCheck() {
     std::string mainPassword = getMainPassword();
     std::cout << "Input MAIN password to get access:";
     std::getline(std::cin, input);
-    std::cout << input << " - " << mainPassword << std::endl;
     if(mainPassword==input)return true;
     else return  false;
 }
