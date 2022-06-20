@@ -3,6 +3,35 @@
 //
 
 #include "PasswordManager.h"
+#include "PasswordPack.h"
+
+
+void PasswordManager::encryptAll(PasswordPack* arr, size_t size) {
+    try{
+        for (int a = 0; a < size; a++) {
+            encryptPack(arr[a]);
+        }
+    }
+    catch(std::exception &e) {}
+}
+void PasswordManager::encryptPack(PasswordPack pack) {
+    encrypt(pack.getName());
+    encrypt(pack.getPassword());
+    if(pack.getUrl().empty() && pack.getLogin().empty())encryptln(pack.getCategory());
+    else if(pack.getUrl().empty()){
+            encrypt(pack.getCategory());
+            encryptMarkln(pack.getLogin(), 'L');
+        }
+    else if(pack.getLogin().empty()){
+        encrypt(pack.getCategory());
+        encryptMarkln(pack.getUrl(), 'U');
+    }
+    else{
+        encrypt(pack.getCategory());
+        encryptMark(pack.getUrl(), 'U');
+        encryptMarkln(pack.getLogin(), 'L');
+    }
+}
 
 bool PasswordManager::encrypt(const std::string &input) {
     try {
@@ -55,8 +84,8 @@ bool PasswordManager::encryptMarkln(const std::string &input, char mark) {
     }
 }
 
-std::string PasswordManager::decrypt(int passwordNumber) {
-    std::string tempPassword = read(passwordNumber);
+PasswordPack PasswordManager::decrypt(int passwordNumber) {
+    std::string tempLine = read(passwordNumber);
     std::string name;
     std::string category;
     std::string password;
@@ -65,9 +94,12 @@ std::string PasswordManager::decrypt(int passwordNumber) {
 
     int pos = 0;
     int tempPos = 0;
-    for (tempPos; pos<=tempPassword.length(); tempPos++) {
-        if(tempPassword[pos]!=' ') {
-            int num = tempPassword[pos] - '0';
+    bool nextUrl = false;
+    bool nextLogin = false;
+
+    for (tempPos; pos <= tempLine.length(); tempPos++) {
+        if(tempLine[pos] != ' ') {
+            int num = tempLine[pos] - '0';
             if (num >= 3)pos+=2;
             else pos+=3;
         }
@@ -75,9 +107,9 @@ std::string PasswordManager::decrypt(int passwordNumber) {
     }
     name.resize(tempPos);
     pos++;
-    for (tempPos = 0; pos<=tempPassword.length(); tempPos++) {
-        if(tempPassword[pos]!=' ') {
-            int num = tempPassword[pos] - '0';
+    for (tempPos = 0; pos <= tempLine.length(); tempPos++) {
+        if(tempLine[pos] != ' ') {
+            int num = tempLine[pos] - '0';
             if (num >= 3)pos+=2;
             else pos+=3;
         }
@@ -85,24 +117,22 @@ std::string PasswordManager::decrypt(int passwordNumber) {
     }
     password.resize(tempPos);
     pos++;
-    bool nextUrl = false;
-    bool nextLogin = false;
-    for (tempPos = 0; pos<=tempPassword.length(); tempPos++) {
-        if(tempPassword[pos]!='\n'&&tempPassword[pos]!='U'&&tempPassword[pos]!='L'&&tempPassword[pos]!=' ') {
-            int num = tempPassword[pos] - '0';
+    for (tempPos = 0; pos <= tempLine.length(); tempPos++) {
+        if(tempLine[pos] != '\n' && tempLine[pos] != 'U' && tempLine[pos] != 'L' && tempLine[pos] != ' ') {
+            int num = tempLine[pos] - '0';
             if (num >= 3)pos+=2;
             else pos+=3;
         }
-        else if(tempPassword[pos]==' '){
+        else if(tempLine[pos] == ' '){
             tempPos--;
             pos++;
         }
-        else if(tempPassword[pos]=='U'){
+        else if(tempLine[pos] == 'U'){
             nextUrl=true;
             pos++;
             break;
         }
-        else if(tempPassword[pos]=='L'){
+        else if(tempLine[pos] == 'L'){
             nextLogin=true;
             pos++;
             break;
@@ -112,15 +142,15 @@ std::string PasswordManager::decrypt(int passwordNumber) {
     category.resize(tempPos);
 
     if(nextUrl){
-        for (tempPos = 0; pos<=tempPassword.length(); tempPos++) {
-            if(tempPassword[pos]!='\n' && tempPassword[pos]!=' ') {
-                int num = tempPassword[pos] - '0';
+        for (tempPos = 0; pos <= tempLine.length(); tempPos++) {
+            if(tempLine[pos] != '\n' && tempLine[pos] != ' ') {
+                int num = tempLine[pos] - '0';
                 if (num >= 3)pos+=2;
                 else pos+=3;
             }
-            else if(tempPassword[pos]==' '){
-                nextLogin= true;
-                pos++;
+            else if(tempLine[pos] == ' '){
+                pos+=2;
+                nextLogin = true;
                 break;
             }
             else break;
@@ -129,9 +159,9 @@ std::string PasswordManager::decrypt(int passwordNumber) {
     }
     if(nextLogin){
         pos++;
-        for (tempPos = 0; pos<=tempPassword.length(); tempPos++) {
-            if(tempPassword[pos]!='\n') {
-                int num = tempPassword[pos] - '0';
+        for (tempPos = 0; pos <= tempLine.length(); tempPos++) {
+            if(tempLine[pos] != '\n') {
+                int num = tempLine[pos] - '0';
                 if (num >= 3)pos+=2;
                 else pos+=3;
             }
@@ -142,21 +172,21 @@ std::string PasswordManager::decrypt(int passwordNumber) {
 
     pos = 0;
     tempPos = 0;
-    for (pos; pos<=tempPassword.length();) {
-        if(tempPassword[pos]!=' ') {
-            int num = tempPassword[pos] - '0';
+    for (pos; pos <= tempLine.length();) {
+        if(tempLine[pos] != ' ') {
+            int num = tempLine[pos] - '0';
             if (num >= 3) {
                 num*=10;
-                num+=tempPassword[pos+1]-'0';
+                num+= tempLine[pos + 1] - '0';
                 name[tempPos] = (char)num;
                 pos+=2;
                 tempPos++;
             }
             else{
                 num*=10;
-                num+=tempPassword[pos+1]-'0';
+                num+= tempLine[pos + 1] - '0';
                 num*=10;
-                num+=tempPassword[pos+2]-'0';
+                num+= tempLine[pos + 2] - '0';
                 name[tempPos] = (char)num;
                 pos+=3;
                 tempPos++;
@@ -166,21 +196,21 @@ std::string PasswordManager::decrypt(int passwordNumber) {
     }
     pos++;
     tempPos = 0;
-    for (pos; pos<=tempPassword.length();) {
-        if(tempPassword[pos]!=' ') {
-            int num = tempPassword[pos] - '0';
+    for (pos; pos <= tempLine.length();) {
+        if(tempLine[pos] != ' ') {
+            int num = tempLine[pos] - '0';
             if (num >= 3) {
                 num*=10;
-                num+=tempPassword[pos+1]-'0';
+                num+= tempLine[pos + 1] - '0';
                 password[tempPos] = (char)num;
                 pos+=2;
                 tempPos++;
             }
             else{
                 num*=10;
-                num+=tempPassword[pos+1]-'0';
+                num+= tempLine[pos + 1] - '0';
                 num*=10;
-                num+=tempPassword[pos+2]-'0';
+                num+= tempLine[pos + 2] - '0';
                 password[tempPos] = (char)num;
                 pos+=3;
                 tempPos++;
@@ -190,63 +220,64 @@ std::string PasswordManager::decrypt(int passwordNumber) {
     }
     pos++;
     tempPos = 0;
-    for (pos; pos<=tempPassword.length();) {
-        if(tempPassword[pos]!='\0' && tempPassword[pos]!='U' && tempPassword[pos]!='L' && tempPassword[pos]!=' ') {
-            int num = tempPassword[pos] - '0';
+    for (pos; pos <= tempLine.length();) {
+        if(tempLine[pos] != '\0' && tempLine[pos] != 'U' && tempLine[pos] != 'L' && tempLine[pos] != ' ') {
+            int num = tempLine[pos] - '0';
             if (num >= 3) {
                 num*=10;
-                num+=tempPassword[pos+1]-'0';
+                num+= tempLine[pos + 1] - '0';
                 category[tempPos] = (char)num;
                 pos+=2;
                 tempPos++;
             }
             else{
                 num*=10;
-                num+=tempPassword[pos+1]-'0';
+                num+= tempLine[pos + 1] - '0';
                 num*=10;
-                num+=tempPassword[pos+2]-'0';
+                num+= tempLine[pos + 2] - '0';
                 category[tempPos] = (char)num;
                 pos+=3;
                 tempPos++;
             }
         }
-        else if(tempPassword[pos]==' '){
+        else if(tempLine[pos] == ' '){
             pos++;
         }
-        else if(tempPassword[pos]=='U'){
+        else if(tempLine[pos] == 'U'){
             pos++;
             break;
         }
-        else if(tempPassword[pos]=='L'){
+        else if(tempLine[pos] == 'L'){
             pos++;
             break;
         }
         else break;
     }
+
     if(nextUrl){
         tempPos = 0;
-        for (pos; pos<=tempPassword.length();) {
-            if (tempPassword[pos] != '\0' && tempPassword[pos] != ' '){
-                int num = tempPassword[pos] - '0';
+        for (pos; pos <= tempLine.length();) {
+            if (tempLine[pos] != '\0' && tempLine[pos] != ' '){
+                int num = tempLine[pos] - '0';
                 if (num >= 3) {
                     num *= 10;
-                    num += tempPassword[pos + 1] - '0';
+                    num += tempLine[pos + 1] - '0';
                     url[tempPos] = (char) num;
                     pos += 2;
                     tempPos++;
                 } else {
                     num *= 10;
-                    num += tempPassword[pos + 1] - '0';
+                    num += tempLine[pos + 1] - '0';
                     num *= 10;
-                    num += tempPassword[pos + 2] - '0';
+                    num += tempLine[pos + 2] - '0';
                     url[tempPos] = (char) num;
                     pos += 3;
                     tempPos++;
                 }
             }
-            else if(tempPassword[pos] == ' '){
-                pos++;
+            else if(tempLine[pos] == ' '){
                 nextLogin = true;
+                pos+=2;
                 break;
             }
             else break;
@@ -254,21 +285,20 @@ std::string PasswordManager::decrypt(int passwordNumber) {
     }
     if(nextLogin){
         tempPos = 0;
-        pos++;
-        for (pos; pos<=tempPassword.length();) {
-            if (tempPassword[pos] != '\0'){
-                int num = tempPassword[pos] - '0';
+        for (pos; pos <= tempLine.length();) {
+            if (tempLine[pos] != '\0'){
+                int num = tempLine[pos] - '0';
                 if (num >= 3) {
                     num *= 10;
-                    num += tempPassword[pos + 1] - '0';
+                    num += tempLine[pos + 1] - '0';
                     login[tempPos] = (char) num;
                     pos += 2;
                     tempPos++;
                 } else {
                     num *= 10;
-                    num += tempPassword[pos + 1] - '0';
+                    num += tempLine[pos + 1] - '0';
                     num *= 10;
-                    num += tempPassword[pos + 2] - '0';
+                    num += tempLine[pos + 2] - '0';
                     login[tempPos] = (char) num;
                     pos += 3;
                     tempPos++;
@@ -278,10 +308,24 @@ std::string PasswordManager::decrypt(int passwordNumber) {
         }
     }
 
-    return name + ' ' + password + ' ' + category + ' ' + url + ' ' + login;
+    PasswordPack out(name, password, category, url, login);
+
+    return out;
 }
-std::string PasswordManager::decrypt() {
-    return std::string();
+PasswordPack* PasswordManager::decrypt() {
+    try {
+        int count = countPasswords();
+
+        PasswordPack *arr = new PasswordPack[count];
+        for (int i = 1; i <= count; i++) {
+            arr[i - 1] = decrypt(i);
+        }
+        return arr;
+    }
+    catch(std::exception &e){
+        std::cout << "File is empty!" << std::endl;
+        return nullptr;
+    }
 }
 
 
@@ -585,5 +629,74 @@ void PasswordManager::buildAddsPassword(){
     }
 }
 
+void PasswordManager::showPasswords(PasswordPack* arr) {
+    int i = 0;
+    try {
+        while (true) {
+            std::cout << arr[i].toString() << std::endl;
+            i++;
+        }
+    }
+    catch (std::exception &e){
+        std::cout << "Number of passwords in file: " << i << std::endl;
+    }
+}
 
+PasswordPack* PasswordManager::sortByName(PasswordPack* arr) {
+    try {
+        int size = countPasswords();
 
+        for (int i = 0; i < size; i++) {
+            for (int a = 0; a < size-1; a++) {
+                if (arr[a].getName() > arr[a + 1].getName()) {
+                    PasswordPack temp = arr[a];
+                    arr[a] = arr[a + 1];
+                    arr[a + 1] = temp;
+                }
+            }
+        }
+    }
+    catch(std::exception &e){
+        std::cout << "File is empty!" << std::endl;
+    }
+    return arr;
+}
+
+PasswordPack* PasswordManager::sortByCategory(PasswordPack* arr){
+    try {
+        int size = 0;
+        try {
+            while (true) {
+                arr[size].toString();
+                size++;
+            }
+        }
+        catch (std::exception &e) {}
+
+        for (int i = 0; i < size; i++) {
+            for (int a = 0; a < size - 1; a++) {
+                if (arr[a].getCategory() > arr[a + 1].getCategory()) {
+                    PasswordPack temp = arr[a];
+                    arr[a] = arr[a + 1];
+                    arr[a + 1] = temp;
+                }
+            }
+        }
+    }
+    catch(std::exception &e){
+        std::cout << "File is empty!" << std::endl;
+    }
+    return arr;
+}
+
+int PasswordManager::countPasswords() {
+    int count = 0;
+    std::string s;
+    std::fstream fs(FileManager::currentDirectory);
+
+    while (std::getline(fs, s)) count++;
+
+    std::cout << "count " << count << std::endl;
+
+    return count;
+}

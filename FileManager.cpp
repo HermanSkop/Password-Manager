@@ -3,6 +3,7 @@
 //
 
 #include "FileManager.h"
+bool FileManager::owner = false;
 
 std::string FileManager::currentDirectory = "../Passwords\\\\pas1.txt";
 
@@ -32,7 +33,7 @@ void FileManager::registration() {
         while (!done) {
             std::cout << "Type your new MAIN password that will be used to check access to all the passwords you have." << std::endl;
             std::cout << "No spaces are allowed:";
-            std::cin >> password;
+            std::getline(std::cin, password);
             if(password.find(' '))done = true;
         }
         ofs.open("../main.txt");
@@ -49,7 +50,7 @@ void FileManager::FMCycle() {
     while (!done) {
         std::cout << "Input exact path to the file or type 'sd' to observe list of them:";
         std::string input;
-        std::cin >> input;
+        std::getline(std::cin, input);
         if(std::filesystem::exists(input)){
             currentDirectory = input;
             std::cout<< "Current directory is " << input << std::endl;
@@ -68,7 +69,7 @@ bool FileManager::accessCheck() {
     std::string input;
     std::string mainPassword = getMainPassword();
     std::cout << "Input MAIN password to get access:";
-    std::cin >> input;
+    std::getline(std::cin, input);
     std::cout << input << " - " << mainPassword << std::endl;
     if(mainPassword==input)return true;
     else return  false;
@@ -85,3 +86,7 @@ void FileManager::showHelp(){
     std::cout << "cancel - returns to main menu" << std::endl;
 }
 
+void FileManager::clearCurrFile(){
+    std::fstream clear_file(FileManager::currentDirectory, std::ios::out);
+    clear_file.close();
+}

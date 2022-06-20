@@ -6,7 +6,7 @@
 #define MAIN_CPP_FILEMANAGER_H
 
 #include <filesystem>
-#include <string.h>
+#include <cstring>
 #include <iostream>
 #include "Console.h"
 
@@ -24,6 +24,8 @@ private:
  * */;
 
 public:
+    static bool owner;
+
     static std::string currentDirectory;
     FileManager(){
         FMCycle();
@@ -48,6 +50,7 @@ public:
  **/;
 
 
+    static void clearCurrFile();
 };
 
 

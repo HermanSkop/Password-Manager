@@ -9,21 +9,28 @@
 #include <bitset>
 #include <fstream>
 #include "FileManager.h"
+#include "PasswordPack.h"
 
 
 class PasswordManager {
 private:
+
+    static void encryptPack(PasswordPack pack);
+
     static bool encryptln(const std::string &input);
     static bool encrypt(const std::string& input);
     static bool encryptMark(const std::string &input, char mark);
     static bool encryptMarkln(const std::string &input, char mark);
-    static bool encryptMarklnb(const std::string &input, char mark);
 
     static void write(const std::string& input);
     static void write(const int& input);
 
 public:
+    static void encryptAll(PasswordPack *arr, size_t size);
+
+
     PasswordManager() = default;
+
     static void addPassword(const std::string& currDirectory);
     static void showHelpForAddPassword();
     static std::string askPassword();
@@ -33,9 +40,9 @@ public:
 
     static std::string read( int line);
 
-    static std::string decrypt();
+    static PasswordPack* decrypt();
 
-    static std::string decrypt(int passwordNumber);
+    static PasswordPack decrypt(int passwordNumber);
 
     static void showHelpForAddSides();
 
@@ -59,9 +66,14 @@ public:
 
     static void buildAddsPassword();
 
-    static bool encryptb(const std::string &input);
+    static void showPasswords(PasswordPack* arr);
 
-    static bool encryptMarkb(const std::string &input, char mark);
+    static PasswordPack* sortByName(PasswordPack* arr);
+    static PasswordPack* sortByCategory(PasswordPack* arr);
+
+
+    static int countPasswords();
+
 };
 
 
